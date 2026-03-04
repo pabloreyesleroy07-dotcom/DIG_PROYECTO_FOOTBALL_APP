@@ -49,11 +49,12 @@ La premisa del proyecto exige accesibilidad universal sin la necesidad de tener 
 ### 3.1. Despliegue directo en Windows
 El proyecto está pensado para funcionar de forma completamente autónoma (Plug-and-Play) en cualquier ordenador con Windows gracias a sus scripts de **auto-despliegue**.
 
-1. **La Magia del Doble Clic:** Navega hasta la carpeta del proyecto (*Analizador_Pendrive*) y localiza el archivo **`INICIAR_WINDOWS.bat`**. Haz doble clic sobre él.
-2. **Auto-Instalación Silenciosa (Python y Librerías):** No necesitas saber programar ni instalar nada previo. El script `.bat` realizará una auditoría del sistema:
+1. **Preparacion:** Mueve el .zip ** `Football-Stats`** a tu escritorio, haz click derecho y pulsa en extraer aqui o extraer todo.
+2. **La Magia del Doble Clic:** Navega hasta la carpeta del proyecto (*Analizador_Pendrive*) y localiza el archivo **`INICIAR_WINDOWS.bat`**. Haz doble clic sobre él.
+3. **Auto-Instalación Silenciosa (Python y Librerías):** No necesitas saber programar ni instalar nada previo. El script `.bat` realizará una auditoría del sistema:
    - Si detecta que no tienes **Python** instalado en tu PC, se conectará a la web oficial de Python, descargará el paquete y **lo instalará por ti de forma automática y oculta** (añadiéndolo al PATH de sistema sin que veas instaladores).
    - Inmediatamente después, auditará las librerías necesarias (`Flask` o `requests`) y las descargará velozmente en segundo plano.
-3. **Arranque Transparente:** Por último, ejecutará el servidor internamente de forma invisible (apoyado mediante código VBScript) y, al cabo de 2 segundos, **abrirá por sí solo tu Navegador Web** local en `http://127.0.0.1:5000`. ¡Ya estás dentro del Panel de Análisis!
+4. **Arranque Transparente:** Por último, ejecutará el servidor internamente de forma invisible (apoyado mediante código VBScript) y, al cabo de 2 segundos, **abrirá por sí solo tu Navegador Web** local en `http://127.0.0.1:5000`. ¡Ya estás dentro del Panel de Análisis!
 
 ### 3.2. Despliegue Portable (Modos "Pendrive" e Invisibilidad .exe)
 Pensando en entornos corporativos o analistas viajeros, el código trae *Herramientas de Compilación Avanzadas*:
