@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>routes API documentation</title>
+<meta name="description" content="API Blueprint module for handling frontend-backend traffic.
+Provides RESTful endpoints for rendering dashboards, generating reports, and validating …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>routes</code></h1>
+</header>
+<section id="section-intro">
+<p>API Blueprint module for handling frontend-backend traffic.
+Provides RESTful endpoints for rendering dashboards, generating reports, and validating database predictions.</p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="routes.get_dashboard_stats"><code class="name flex">
+<span>def <span class="ident">get_dashboard_stats</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@api_bp.route(&#39;/api/dashboard&#39;, methods=[&#39;GET&#39;])
+def get_dashboard_stats():
+    &#34;&#34;&#34;
+    Reads the dynamic local JSON database consisting of predictions and cross-checks them with ongoing API outcomes.
+    If a prediction is missing validation, it queries the match statistics to automatically determine hit_rate accuracy.
+    
+    :return: A JSON dictionary with calculated algorithmic success rates.
+    &#34;&#34;&#34;
+    if not os.path.exists(Config.PREDICCIONES_FILE):
+        return jsonify({&#34;success&#34;: True, &#34;stats&#34;: {&#34;total&#34;: 0, &#34;won&#34;: 0, &#34;hit_rate&#34;: 0, &#34;pending&#34;: 0}})
+        
+    try:
+        with open(Config.PREDICCIONES_FILE, &#39;r&#39;, encoding=&#39;utf-8&#39;) as f:
+            data = json.load(f)
+            
+        headers = { &#39;x-apisports-key&#39;: Config.API_KEY }
+        updated_data = False
+        today = datetime.now().strftime(&#34;%Y-%m-%d&#34;)
+        
+        for p in data:
+            if not p.get(&#34;checked&#34;) and p.get(&#34;date&#34;) &lt;= today:
+                try:
+                    res = requests.get(f&#34;{Config.BASE_URL}/fixtures&#34;, params={&#34;id&#34;: p[&#34;id&#34;]}, headers=headers).json()
+                    match_info = res.get(&#34;response&#34;, [])
+                    if match_info:
+                        status = match_info[0][&#34;fixture&#34;][&#34;status&#34;][&#34;short&#34;]
+                        if status in [&#34;FT&#34;, &#34;AET&#34;, &#34;PEN&#34;]:
+                            goals = match_info[0][&#34;goals&#34;]
+                            score_h = goals[&#34;home&#34;]
+                            score_a = goals[&#34;away&#34;]
+                            
+                            ambos_marcan = (score_h &gt; 0 and score_a &gt; 0)
+                            stats_res = requests.get(f&#34;{Config.BASE_URL}/fixtures/statistics&#34;, params={&#34;fixture&#34;: p[&#34;id&#34;]}, headers=headers).json()
+                            
+                            c_home = 0; c_away = 0
+                            for tm in stats_res.get(&#34;response&#34;, []):
+                                for s in tm[&#34;statistics&#34;]:
+                                    if s[&#34;type&#34;] == &#34;Corner Kicks&#34; and s[&#34;value&#34;] is not None:
+                                        if tm[&#34;team&#34;][&#34;id&#34;] == match_info[0][&#34;teams&#34;][&#34;home&#34;][&#34;id&#34;]: c_home = s[&#34;value&#34;]
+                                        else: c_away = s[&#34;value&#34;]
+                            
+                            total_corners = c_home + c_away
+                            tags = p.get(&#34;tags&#34;, [])
+                            won = False
+                            
+                            if &#34;ambos_marcan&#34; in tags and ambos_marcan: won = True
+                            if &#34;corners&#34; in tags and total_corners &gt; 8: won = True
+                            if &#34;ambos_marcan&#34; in tags and &#34;corners&#34; in tags:
+                                won = ambos_marcan and total_corners &gt; 8
+                                
+                            p[&#34;checked&#34;] = True
+                            p[&#34;won&#34;] = won
+                            updated_data = True
+                except Exception as e:
+                    print(&#34;Error verifying DB:&#34;, e)
+                    
+        if updated_data:
+            with open(Config.PREDICCIONES_FILE, &#39;w&#39;, encoding=&#39;utf-8&#39;) as f:
+                json.dump(data, f, indent=4, ensure_ascii=False)
+                
+        total = len(data)
+        checked = [p for p in data if p.get(&#34;checked&#34;)]
+        won = len([p for p in checked if p.get(&#34;won&#34;)])
+        pending = total - len(checked)
+        
+        hit_rate = 0
+        if len(checked) &gt; 0:
+            hit_rate = int((won / len(checked)) * 100)
+            
+        stats = {&#34;total&#34;: total, &#34;won&#34;: won, &#34;hit_rate&#34;: hit_rate, &#34;pending&#34;: pending}
+        return jsonify({&#34;success&#34;: True, &#34;stats&#34;: stats})
+        
+    except Exception as e:
+        return jsonify({&#34;success&#34;: False, &#34;error&#34;: str(e)})</code></pre>
+</details>
+<div class="desc"><p>Reads the dynamic local JSON database consisting of predictions and cross-checks them with ongoing API outcomes.
+If a prediction is missing validation, it queries the match statistics to automatically determine hit_rate accuracy.</p>
+<p>:return: A JSON dictionary with calculated algorithmic success rates.</p></div>
+</dd>
+<dt id="routes.get_report"><code class="name flex">
+<span>def <span class="ident">get_report</span></span>(<span>filename)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@api_bp.route(&#34;/api/reports/&lt;filename&gt;&#34;, methods=[&#34;GET&#34;])
+def get_report(filename):
+    &#34;&#34;&#34;
+    Retrieves the raw text content of a specified report file.
+    
+    :param filename: The exact name of the file to retrieve.
+    :return: A JSON object containing the stringified text content or an error payload.
+    &#34;&#34;&#34;
+    if not (filename.startswith(&#34;Reporte_&#34;) and filename.endswith(&#34;.txt&#34;)):
+        return jsonify({&#34;error&#34;: &#34;Invalid file format&#34;}), 400
+        
+    filepath = os.path.join(Config.REPORTS_DIR, filename)
+    if not os.path.exists(filepath):
+        return jsonify({&#34;error&#34;: &#34;Report not found&#34;}), 404
+        
+    with open(filepath, &#34;r&#34;, encoding=&#34;utf-8&#34;) as f:
+        content = f.read()
+    return jsonify({&#34;filename&#34;: filename, &#34;content&#34;: content})</code></pre>
+</details>
+<div class="desc"><p>Retrieves the raw text content of a specified report file.</p>
+<p>:param filename: The exact name of the file to retrieve.
+:return: A JSON object containing the stringified text content or an error payload.</p></div>
+</dd>
+<dt id="routes.index"><code class="name flex">
+<span>def <span class="ident">index</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@api_bp.route(&#34;/&#34;)
+def index():
+    &#34;&#34;&#34;
+    Renders the primary single-page application index.html.
+    
+    :return: Rendered HTML template.
+    &#34;&#34;&#34;
+    return render_template(&#34;index.html&#34;)</code></pre>
+</details>
+<div class="desc"><p>Renders the primary single-page application index.html.</p>
+<p>:return: Rendered HTML template.</p></div>
+</dd>
+<dt id="routes.list_reports"><code class="name flex">
+<span>def <span class="ident">list_reports</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@api_bp.route(&#34;/api/reports&#34;, methods=[&#34;GET&#34;])
+def list_reports():
+    &#34;&#34;&#34;
+    Scans the local reports directory and fetches all historical TXT reports.
+    
+    :return: A JSON array containing dictionaries with filename and timestamp data.
+    &#34;&#34;&#34;
+    reports = []
+    if os.path.exists(Config.REPORTS_DIR):
+        for filename in os.listdir(Config.REPORTS_DIR):
+            if filename.startswith(&#34;Reporte_&#34;) and filename.endswith(&#34;.txt&#34;):
+                filepath = os.path.join(Config.REPORTS_DIR, filename)
+                mod_time = os.path.getmtime(filepath)
+                reports.append({
+                    &#34;filename&#34;: filename,
+                    &#34;date_str&#34;: filename.replace(&#34;Reporte_&#34;, &#34;&#34;).replace(&#34;.txt&#34;, &#34;&#34;),
+                    &#34;timestamp&#34;: mod_time
+                })
+        reports.sort(key=lambda x: x[&#34;timestamp&#34;], reverse=True)
+    return jsonify(reports)</code></pre>
+</details>
+<div class="desc"><p>Scans the local reports directory and fetches all historical TXT reports.</p>
+<p>:return: A JSON array containing dictionaries with filename and timestamp data.</p></div>
+</dd>
+<dt id="routes.process_verify"><code class="name flex">
+<span>def <span class="ident">process_verify</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@api_bp.route(&#39;/api/generate_historic&#39;, methods=[&#39;POST&#39;])
+def process_verify():
+    &#34;&#34;&#34;
+    A simulated hook waiting for integration with AI validation processes.
+    
+    :return: JSON success message.
+    &#34;&#34;&#34;
+    import time
+    time.sleep(2)
+    return jsonify({&#34;success&#34;: True, &#34;message&#34;: &#34;Scan Finished Successfully&#34;})</code></pre>
+</details>
+<div class="desc"><p>A simulated hook waiting for integration with AI validation processes.</p>
+<p>:return: JSON success message.</p></div>
+</dd>
+<dt id="routes.run_generator"><code class="name flex">
+<span>def <span class="ident">run_generator</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@api_bp.route(&#39;/api/generate&#39;, methods=[&#39;POST&#39;])
+def run_generator():
+    &#34;&#34;&#34;
+    Triggers the asynchronous data extraction engine for a given date.
+    
+    :return: A JSON object confirming triggering success or exception details.
+    &#34;&#34;&#34;
+    data = request.json
+    dia = data.get(&#34;dia&#34;)
+    if not dia:
+        return jsonify({&#34;error&#34;: &#34;Missing day / date parameter&#34;}), 400
+        
+    res = lanzar_scan(dia=dia)
+    if res and res.get(&#34;error&#34;):
+        return jsonify({&#34;success&#34;: False, &#34;error&#34;: res[&#34;error&#34;]})
+        
+    return jsonify({&#34;success&#34;: True, &#34;message&#34;: &#34;Generation complete (Async).&#34;})</code></pre>
+</details>
+<div class="desc"><p>Triggers the asynchronous data extraction engine for a given date.</p>
+<p>:return: A JSON object confirming triggering success or exception details.</p></div>
+</dd>
+<dt id="routes.shutdown"><code class="name flex">
+<span>def <span class="ident">shutdown</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@api_bp.route(&#39;/api/shutdown&#39;, methods=[&#39;POST&#39;])
+def shutdown():
+    &#34;&#34;&#34;
+    Shuts down the backend server.
+    &#34;&#34;&#34;
+    shutdown_func = request.environ.get(&#39;werkzeug.server.shutdown&#39;)
+    if shutdown_func is None:
+        os.kill(os.getpid(), 9)
+    else:
+        shutdown_func()
+    return jsonify({&#34;success&#34;: True, &#34;message&#34;: &#34;Server shutting down...&#34;})</code></pre>
+</details>
+<div class="desc"><p>Shuts down the backend server.</p></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="two-column">
+<li><code><a title="routes.get_dashboard_stats" href="#routes.get_dashboard_stats">get_dashboard_stats</a></code></li>
+<li><code><a title="routes.get_report" href="#routes.get_report">get_report</a></code></li>
+<li><code><a title="routes.index" href="#routes.index">index</a></code></li>
+<li><code><a title="routes.list_reports" href="#routes.list_reports">list_reports</a></code></li>
+<li><code><a title="routes.process_verify" href="#routes.process_verify">process_verify</a></code></li>
+<li><code><a title="routes.run_generator" href="#routes.run_generator">run_generator</a></code></li>
+<li><code><a title="routes.shutdown" href="#routes.shutdown">shutdown</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

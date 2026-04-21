@@ -1,0 +1,329 @@
+import os
+import json
+import asyncio
+import aiohttp
+import time
+from datetime import datetime, timedelta
+from config import Config
+
+class FootballAsyncEngine:
+    """
+    Asynchronous computation engine for processing extreme volumes of football statistics via REST APIs.
+    Utilizes concurrent gathering to map corners, shots, and hit rates while respecting rate limits.
+    """
+    def __init__(self):
+        self.headers = {'x-apisports-key': Config.API_KEY}
+        self.benchmarks = {}
+        self.seasons_cache = {}
+        self.results_cache = {} # Nivel 2 Caching para no volver a pedir fixtures/statistics
+
+        # Semaphore limits active connections. Token-like delay ensures we don't exceed API rate limits.
+        self.semaphore = asyncio.Semaphore(Config.MAX_CONCURRENT_REQUESTS) 
+        self.session = None
+
+    def _log(self, msg):
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
+
+    def _extract_val(self, stats_list, target_type):
+        for s in stats_list:
+            if s['type'] == target_type:
+                return s['value'] if s['value'] is not None else 0
+        return 0
+
+    async def _fetch(self, endpoint, params):
+        """ Wrapper HTTP asíncrono con control de límite de tasa. """
+        async with self.semaphore:
+            # Prevents hitting max throughput instantly
+            await asyncio.sleep(Config.ESPERA_API) 
+            try:
+                async with self.session.get(f"{Config.BASE_URL}{endpoint}", params=params, headers=self.headers, timeout=12) as response:
+                    return await response.json()
+            except Exception as e:
+                return {}
+
+    async def get_current_season(self, league_id):
+        """
+        Retrieves the exact active current season year of a given football league ID.
+        :param league_id: Numeric identifier for the target league.
+        :return: Integer representing the year (e.g. 2025).
+        """
+        if league_id in self.seasons_cache: return self.seasons_cache[league_id]
+        res = await self._fetch("/leagues", {"id": league_id})
+        try:
+            for s in res.get('response', [])[0]['seasons']:
+                if s['current']:
+                    self.seasons_cache[league_id] = s['year']
+                    return s['year']
+        except: pass
+        return 2025
+
+    async def get_match_stats(self, fixture_id):
+        if fixture_id in self.results_cache: return self.results_cache[fixture_id]
+        res = await self._fetch("/fixtures/statistics", {"fixture": fixture_id})
+        response = res.get("response", [])
+        if len(response) < 2: return None
+        results = []
+        for team_data in response:
+            s = team_data['statistics']
+            results.append({
+                'id': team_data['team']['id'],
+                'name': team_data['team']['name'],
+                'tap': self._extract_val(s, "Shots on Goal"),
+                't': self._extract_val(s, "Total Shots"),
+                'cor': self._extract_val(s, "Corner Kicks"),
+                'yc': self._extract_val(s, "Yellow Cards"),
+                'rc': self._extract_val(s, "Red Cards")
+            })
+        self.results_cache[fixture_id] = results
+        return results 
+
+    async def get_league_benchmark(self, league_id, season):
+        key = f"{league_id}_{season}"
+        if key in self.benchmarks: return self.benchmarks[key]
+        
+        res = await self._fetch("/fixtures", {"league": league_id, "season": season, "status": "FT", "last": 8})
+        matches = res.get("response", [])
+        if not matches: return None
+        
+        sums = {'tap': 0, 't': 0, 'cor': 0, 'yc': 0, 'rc': 0, 'count': 0}
+        
+        # Parallel fetch for all benchmarks matches statistics
+        tasks = [self.get_match_stats(m['fixture']['id']) for m in matches]
+        stats_results = await asyncio.gather(*tasks)
+
+        for stats in stats_results:
+            if stats:
+                for ts in stats:
+                    sums['tap'] += ts['tap']; sums['t'] += ts['t']
+                    sums['cor'] += ts['cor']; sums['yc'] += ts['yc']; sums['rc'] += ts['rc']
+                    sums['count'] += 1
+
+        if sums['count'] > 0:
+            bench = {k: v/sums['count'] for k, v in sums.items() if k != 'count'}
+            self.benchmarks[key] = bench
+            return bench
+        return None
+
+    async def get_standings(self, league_id, season):
+        res = await self._fetch("/standings", {"league": league_id, "season": season})
+        response = res.get("response", [])
+        if not response: return {}
+        standings_data = {}
+        try:
+            for league_info in response:
+                for standing in league_info['league']['standings']:
+                    for team in standing:
+                        standings_data[team['team']['id']] = team['rank']
+        except: pass
+        return standings_data
+
+    def analizar_anomalias(self, l, v, b):
+        razonamiento = []
+        interes = False
+        fiabilidad_total = 0
+        anomalias_detectadas = 0
+        
+        for stat, label in [('tap', 'TAP'), ('t', 'TIROS'), ('cor', 'CORNERS')]:
+            max_stat = max(l[stat], v[stat])
+            if max_stat > b[stat] * 2:
+                ratio = max_stat / b[stat]
+                fiab_local = min(99, int(((ratio - 2.0) / 1.0) * 30 + 70))
+                razonamiento.append(f"      [!!!] {label}: Extreme value detected. (Reliability: {fiab_local}%)")
+                fiabilidad_total += fiab_local
+                anomalias_detectadas += 1
+                interes = True
+
+        proy_cor = l['cor'] + v['cor']
+        media_cor = b['cor'] * 2
+        if proy_cor > (media_cor * 1.25):
+            ratio_cor = proy_cor / media_cor
+            fiab_cor = min(99, int(((ratio_cor - 1.25) / 0.75) * 30 + 70))
+            razonamiento.append(f"      [!] CORNERS: Interest in Over (Projection {proy_cor:.1f} vs Media {media_cor:.1f}). (Reliability: {fiab_cor}%)")
+            fiabilidad_total += fiab_cor
+            anomalias_detectadas += 1
+            interes = True
+
+        if l['tap'] > b['tap'] * 1.3 and v['tap'] > b['tap'] * 1.3:
+            ratio_tap = min(l['tap']/b['tap'], v['tap']/b['tap'])
+            fiab_tap = min(99, int(((ratio_tap - 1.3) / 0.7) * 30 + 70))
+            razonamiento.append(f"      [!] BOTH SCORE: Based on high Target Shots volume. (Reliability: {fiab_tap}%)")
+            fiabilidad_total += fiab_tap
+            anomalias_detectadas += 1
+            interes = True
+
+        if interes and anomalias_detectadas > 0:
+            fiabilidad_promedio = int(fiabilidad_total / anomalias_detectadas)
+            semaforo = "🟢 HIGH" if fiabilidad_promedio >= 85 else ("🟡 MEDIUM" if fiabilidad_promedio >= 75 else "🔴 LOW")
+            razonamiento.insert(0, f"   🚦 GLOBAL CONFIDENCE: {semaforo} ({fiabilidad_promedio}%)")
+
+        return interes, razonamiento
+
+    async def process_fixture(self, fi, fecha_objetivo):
+        l_id, l_name = fi['league']['id'], fi['league']['name']
+        t1, t2 = fi['teams']['home'], fi['teams']['away']
+        match_id = str(fi['fixture']['id'])
+        hora = fi['fixture']['date'][11:16]
+        
+        self._log(f"⚙️ Analyzing: {t1['name']} vs {t2['name']}...")
+        
+        season = await self.get_current_season(l_id)
+        
+        # Parallel baseline calculations
+        standings_task = asyncio.create_task(self.get_standings(l_id, season))
+        bench_task = asyncio.create_task(self.get_league_benchmark(l_id, season))
+        h2h_task = asyncio.create_task(self._fetch("/fixtures/headtohead", {"h2h": f"{t1['id']}-{t2['id']}", "last": 2, "status": "FT"}))
+        res_t1_task = asyncio.create_task(self._fetch("/fixtures", {"team": t1['id'], "last": 5, "status": "FT"}))
+        res_t2_task = asyncio.create_task(self._fetch("/fixtures", {"team": t2['id'], "last": 5, "status": "FT"}))
+        
+        standings, bench, res_h, res_f1, res_f2 = await asyncio.gather(
+            standings_task, bench_task, h2h_task, res_t1_task, res_t2_task
+        )
+        
+        p1, p2 = standings.get(t1['id'], "?"), standings.get(t2['id'], "?")
+        output_buffer = []
+
+        output_buffer.append("=" * 115)
+        output_buffer.append(f"🏆 LEAGUE: {l_name} | ⏰ Time: {hora}")
+        output_buffer.append(f"🔥 MATCH: {t1['name']} ({p1}º) vs {t2['name']} ({p2}º)")
+        
+        if bench:
+            output_buffer.append(f"📊 LEAGUE BENCHMARK: TAP:{bench['tap']:.1f} | T:{bench['t']:.1f} | COR:{bench['cor']:.1f} | YC:{bench['yc']:.1f} | RC:{bench['rc']:.2f}")
+
+        # H2H Processing
+        h2h_matches = res_h.get("response", [])
+        if h2h_matches:
+            h2h_stats = await asyncio.gather(*[self.get_match_stats(m['fixture']['id']) for m in h2h_matches])
+            for m, s in zip(h2h_matches, h2h_stats):
+                if s:
+                    hid = m['teams']['home']['id']
+                    sh, sa = (s[0], s[1]) if s[0]['id'] == hid else (s[1], s[0])
+                    output_buffer.append(f"\n   ⚔️  H2H: [{m['fixture']['date'][:10]}] {sh['name']} {m['goals']['home']}-{m['goals']['away']} {sa['name']}")
+                    output_buffer.append(f"         TAP:{sh['tap']}-{sa['tap']} | T:{sh['t']}-{sa['t']} | COR:{sh['cor']}-{sa['cor']} | YC:{sh['yc']}-{sa['yc']} | RC:{sh['rc']}-{sa['rc']}")
+
+        # L5 Processing
+        equipo_data = []
+        for team_info, p_rank, res_f in [(t1, p1, res_f1), (t2, p2, res_f2)]:
+            output_buffer.append(f"\n   📈 LAST 5 {team_info['name'].upper()}:")
+            matches = res_f.get("response", [])
+            s_tap, s_t, s_cor, s_yc, s_rc, count = 0, 0, 0, 0, 0, 0
+            
+            l5_stats = await asyncio.gather(*[self.get_match_stats(p['fixture']['id']) for p in matches])
+            for p, st in zip(matches, l5_stats):
+                if st:
+                    idx = 0 if st[0]['id'] == team_info['id'] else 1
+                    ridx = 1 if idx == 0 else 0
+                    g_fav, g_con = (p['goals']['home'], p['goals']['away']) if idx == 0 else (p['goals']['away'], p['goals']['home'])
+                    output_buffer.append(f"      [{p['fixture']['date'][:10]}] vs {p['teams']['away' if idx==0 else 'home']['name'][:10]} | {g_fav}-{g_con} | TAP:{st[idx]['tap']}-{st[ridx]['tap']} | T:{st[idx]['t']}-{st[ridx]['t']} | COR:{st[idx]['cor']}-{st[ridx]['cor']} | RC:{st[idx]['rc']}-{st[ridx]['rc']}")
+                    s_tap += st[idx]['tap']; s_t += st[idx]['t']; s_cor += st[idx]['cor']; s_yc += st[idx]['yc']; s_rc += st[idx]['rc']
+                    count += 1
+            if count > 0:
+                prom = {'name': team_info['name'], 'tap': s_tap/count, 't': s_t/count, 'cor': s_cor/count, 'yc': s_yc/count, 'rc': s_rc/count}
+                equipo_data.append(prom)
+                if bench:
+                    output_buffer.append(f"      >> PROMEDIO: TAP:{prom['tap']:.1f} | T:{prom['t']:.1f} | COR:{prom['cor']:.1f} | YC:{prom['yc']:.1f} | RC:{prom['rc']:.2f}")
+
+        # Final Analytics
+        valor_detectado = False
+        dict_prediccion = None
+
+        if bench and len(equipo_data) == 2:
+            tiene_valor, razon = self.analizar_anomalias(equipo_data[0], equipo_data[1], bench)
+            if tiene_valor:
+                valor_detectado = True
+                output_buffer.append("\n   💡 LOGICAL ANALYSIS:")
+                output_buffer.extend(razon)
+                output_buffer.append("=" * 115 + "\n")
+                
+                tags = []
+                for r in razon:
+                    if 'CORNERS' in r: tags.append('corners')
+                    if 'BOTH SCORE' in r: tags.append('ambos_marcan')
+                
+                dict_prediccion = {
+                    "id": match_id,
+                    "date": fecha_objetivo,
+                    "home": t1['name'],
+                    "away": t2['name'],
+                    "tags": tags,
+                    "checked": False,
+                    "won": False
+                }
+
+        ret_val = "\n".join(output_buffer) if valor_detectado else None
+        return ret_val, dict_prediccion
+
+    async def ejecutar_async(self, dia="manana"):
+        # Match Target Date
+        if dia == "hoy": fecha_objetivo = datetime.now().strftime("%Y-%m-%d")
+        elif dia == "manana": fecha_objetivo = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+        else:
+            try:
+                datetime.strptime(dia, "%Y-%m-%d")
+                fecha_objetivo = dia
+            except ValueError:
+                return {"error": "Invalid date format. Use YYYY-MM-DD."}
+                
+        dia_str = fecha_objetivo
+        ligas = [2, 3, 848, 140, 141, 39, 40, 135, 136, 78, 79, 61, 62, 94, 88, 144, 203, 71, 128, 253, 262, 98, 307, 113, 103, 265, 119, 292]
+        
+        self._log(f"🚀 Async Scanner V48 analyzing {dia_str}: {fecha_objetivo}...")
+        
+        async with aiohttp.ClientSession() as session:
+            self.session = session
+            try:
+                res = await self._fetch("/fixtures", {"date": fecha_objetivo})
+                fixtures_obj = [fi for fi in res.get("response", []) if fi['league']['id'] in ligas]
+            except Exception as e:
+                self._log(f"❌ Initial connection error: {e}")
+                return {"error": "Initial connection error a la API."}
+
+            if not fixtures_obj:
+                return {"message": f"No fixtures scheduled for {fecha_objetivo}."}
+
+            # Batch Processing Concurrently
+            tasks = [self.process_fixture(fi, fecha_objetivo) for fi in fixtures_obj]
+            results = await asyncio.gather(*tasks)
+
+            # Reconstruct outputs
+            partidos_con_valor = []
+            nuevas_predicciones = []
+            con_anomalias = 0
+
+            for txt_res, pred_dist in results:
+                if txt_res and pred_dist:
+                    con_anomalias += 1
+                    partidos_con_valor.append(txt_res)
+                    nuevas_predicciones.append(pred_dist)
+
+            # Merge with persistent state in JSON
+            try:
+                with open(Config.PREDICCIONES_FILE, 'r', encoding='utf-8') as f:
+                    todas_predicciones = json.load(f)
+            except (FileNotFoundError, json.JSONDecodeError):
+                todas_predicciones = []
+
+            for nv in nuevas_predicciones:
+                if not any(p['id'] == nv['id'] for p in todas_predicciones):
+                    todas_predicciones.append(nv)
+
+            try:
+                with open(Config.PREDICCIONES_FILE, 'w', encoding='utf-8') as f:
+                    json.dump(todas_predicciones, f, indent=4, ensure_ascii=False)
+            except Exception as e:
+                self._log(f"⚠️ Error guardando JSON db: {e}")
+
+            # Write Report locally in reporting dir
+            nombre_archivo = os.path.join(Config.REPORTS_DIR, f"Reporte_{fecha_objetivo}.txt")
+            with open(nombre_archivo, "w", encoding="utf-8") as f:
+                f.write(f"Matches analyzed ({dia_str}): {len(fixtures_obj)}\n")
+                f.write(f"Matches with anomalies: {con_anomalias}\n")
+                f.write(f"Matches without anomalies: {len(fixtures_obj) - con_anomalias}\n\n")
+                f.write("".join(partidos_con_valor))
+            
+            self._log(f"✅ Finalizado (ASÍNCRONO). Reporte: {nombre_archivo}")
+            return {"success": True, "message": "Completed Successfully"}
+
+def lanzar_scan(dia="manana"):
+    """ Wrapper helper sincrónico """
+    engine = FootballAsyncEngine()
+    return asyncio.run(engine.ejecutar_async(dia=dia))

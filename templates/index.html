@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football Stats Scanner Pro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body id="top">
+    <div class="app-wrapper">
+        <!-- HEADER -->
+        <header class="app-header glass-panel">
+            <div class="logo-center">
+                <h1 class="main-title">
+                    <i class="fa-solid fa-futbol"></i>
+                    <span>Football</span> Stats
+                </h1>
+            </div>
+            <div class="header-actions">
+                <button id="shutdown-btn" class="icon-btn tooltip" style="color: var(--accent); border-color: rgba(239, 68, 68, 0.3);" title="Shutdown Server">
+                    <i class="fa-solid fa-power-off"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- SECTION 1: COMMAND CENTER -->
+        <section class="section-command glass-panel">
+            <div class="controls-panel">
+                <input type="date" id="date-picker" class="date-picker-large">
+                <button id="generate-btn" class="btn-massive">
+                    <i class="fa-solid fa-bolt"></i> Init Scenario Scanner
+                </button>
+                <button id="btn-open-dashboard" class="btn-action" style="justify-content:center; margin-top: 1rem; border-color: var(--secondary); color: var(--secondary); width: 100%;">
+                    <i class="fa-solid fa-rotate-right"></i> Sync Global AI Statistics
+                </button>
+            </div>
+            <div class="reports-panel">
+                <div class="panel-header">
+                    <h3 class="panel-title"><i class="fa-solid fa-database"></i> Analytics Library</h3>
+                </div>
+                <ul id="reports-list" class="reports-list">
+                    <div style="text-align: center; color: var(--text-muted); margin-top: 2rem;">Loading Grid...</div>
+                </ul>
+            </div>
+        </section>
+
+        <!-- SECTION 2: VIEWER LIMITLESS -->
+        <section class="section-viewer glass-panel" id="report-viewer-section">
+            <div class="topbar-viewer" id="topbar-info">
+                <div>
+                    <h2>Awaiting Report...</h2>
+                    <p>Select an analysis above to display the output.</p>
+                </div>
+                <div>
+                    <button id="btn-verify-report" class="btn-action" disabled>
+                        <i class="fa-solid fa-check-double"></i> Validate Document Metadata
+                    </button>
+                </div>
+            </div>
+
+            <div id="report-filters" class="report-filters hidden">
+                <div class="search-box">
+                    <i class="fa-solid fa-search" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+                    <input type="text" id="search-input" placeholder="Filter teams or global tournaments...">
+                </div>
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="confianza_alta">Max Confidence</button>
+                <button class="filter-btn" data-filter="corners">Corner Anomalies</button>
+                <button class="filter-btn" data-filter="ambos_marcan">BTTS Market (Both Score)</button>
+                <button class="filter-btn" data-filter="tiros">Target Shots (TAP)</button>
+                <button class="filter-btn" id="btn-toggle-all" style="margin-left: auto; border-style: dashed; color: var(--warning); border-color: var(--warning);"><i class="fa-solid fa-compress"></i> Collapse All</button>
+            </div>
+
+            <div class="report-scroll-area">
+                <div class="empty-state" id="empty-state">
+                    <i class="fa-solid fa-satellite-dish empty-icon"></i>
+                    <h2>Awaiting Signal</h2>
+                    <p>Use the upper section to compute a new date or retrieve a past log. Structures will scale organically.</p>
+                </div>
+                <!-- INJECTION TARGET -->
+                <div id="report-content" class="report-content hidden"></div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: INTELLIGENCE & BETS -->
+        <section class="section-intelligence" id="intelligence-section">
+            <!-- DASHBOARD BOX -->
+            <div id="dashboard-modal" class="glass-panel dashboard-panel">
+                <div style="padding: 1.5rem 2rem; border-bottom: 1px solid var(--border);">
+                    <h3 style="margin:0; color: var(--secondary); font-size: 1.2rem;"><i class="fa-solid fa-network-wired"></i> Accuracy Neural Net</h3>
+                    <button id="close-dashboard" style="display:none;"></button>
+                </div>
+                
+                <div class="dashboard-content-pad">
+                    <div id="dashboard-content" style="text-align: center; padding: 3rem 0;">
+                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 3rem; color: var(--secondary); margin-bottom: 1.5rem;"></i>
+                        <p style="font-size: 1rem; color: var(--text-muted);">Analyzing sports API latencies...</p>
+                    </div>
+
+                    <div id="dashboard-stats" class="hidden">
+                        <div class="hit-rate-container">
+                            <div class="hit-rate-circle" id="hit-rate-circle">
+                                <div class="hit-rate-inner">
+                                    <span class="hit-rate-val" id="hit-rate-text">0%</span>
+                                    <span class="hit-rate-label">Win Rate</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dashboard-stats-grid">
+                            <div class="dash-stat-box">
+                                <strong id="dashboard-won">0</strong>
+                                <span>Matches Won</span>
+                            </div>
+                            <div class="dash-stat-box">
+                                <strong id="dashboard-total">0</strong>
+                                <span>Leagues Verified</span>
+                            </div>
+                        </div>
+                        <p id="dashboard-pending" style="text-align: center; font-size: 0.9rem; color: var(--warning); margin-bottom: 0;"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BET SLIP BOX -->
+            <div id="bet-slip-panel" class="glass-panel betslip-panel">
+                <div class="betslip-header">
+                    <h3 style="margin:0; color: var(--primary); font-size: 1.2rem;"><i class="fa-solid fa-vault"></i> Extraction Wallet</h3>
+                    <button id="btn-optimize-combos" class="btn-optimize">
+                        <i class="fa-solid fa-brain"></i> Coverage Bot
+                    </button>
+                </div>
+
+                <div id="optimizer-panel" class="hidden" style="background: rgba(0,0,0,0.7); padding: 2rem; border-bottom: 1px solid var(--border);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h4 style="color: var(--primary); margin:0; font-size: 1.1rem;">Mathematical Risk Engine</h4>
+                        <button id="close-optimizer-btn" class="icon-btn" style="width: 35px; height: 35px; border-color: var(--danger); color: var(--danger);"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.6;">Converts your chaotic pending bets into 3 structured combos. Designed to cover losses even if only two sub-groups win, protecting your bankroll with fixed risk.</p>
+                    <button id="btn-run-optimizer" class="btn-action" style="width: 100%; justify-content:center; background: var(--primary); color:#000; font-size: 1.1rem; padding: 1rem;">
+                        Generate Combo Tree
+                    </button>
+                    <div id="optimizer-content" style="margin-top: 1.5rem;"></div>
+                </div>
+
+                <div class="bet-global-summary">
+                    <div>
+                        <span class="money-label">Gross Exposure</span>
+                        <strong class="money-val" id="bet-global-stake">0.00$</strong>
+                    </div>
+                    <div>
+                        <span class="money-label">Partial Harvest</span>
+                        <strong class="money-val" id="bet-global-return">0.00$</strong>
+                    </div>
+                    <div class="net-profit">
+                        <span class="money-label" style="display:block; margin-bottom: 0.5rem;">FINAL NET PROFIT (PNL)</span>
+                        <strong class="money-val" id="bet-global-profit">0.00$</strong>
+                    </div>
+                </div>
+
+                <div id="bet-slip-content" class="betslip-content">
+                    <!-- Cards will flow here -->
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Generando Overlay -->
+    <div class="overlay hidden" id="loading-overlay">
+        <div class="loader-card glass-panel">
+            <div class="pulse-loader">
+                <i class="fa-solid fa-globe"></i>
+            </div>
+            <h3 style="color: var(--primary); font-size: 2rem; margin-bottom: 1rem;">Scanning Worldwide Datamarkets</h3>
+            <p style="color: var(--text-muted); font-size: 1.2rem;">Please stand firmly. This action flushes the API rate limits.</p>
+            <div class="progress-bar-container">
+                <div class="progress-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast hidden" id="toast">
+        <i class="fa-solid fa-satellite-dish" style="font-size: 1.5rem; color: var(--success);"></i>
+        <span>Operation injected into the database.</span>
+    </div>
+
+    <div style="display:none;">
+        <button id="btn-open-betslip"></button>
+        <button id="toggle-betslip-arrow"></button>
+        <button id="close-betslip-btn"></button>
+        <button id="theme-toggle"></button>
+    </div>
+
+    <!-- FLOATING DOCK -->
+    <nav class="floating-dock glass-panel">
+        <a href="#top" class="dock-item tooltip" title="Data Engine" onclick="document.getElementById('top').scrollIntoView({behavior: 'smooth'}); return false;">
+            <i class="fa-solid fa-satellite-dish"></i>
+        </a>
+        <a href="#report-viewer-section" class="dock-item tooltip" title="Anomaly Viewer" onclick="document.getElementById('report-viewer-section').scrollIntoView({behavior: 'smooth', block: 'start' }); return false;">
+            <i class="fa-solid fa-chart-bar"></i>
+        </a>
+        <a href="#intelligence-section" class="dock-item tooltip" title="Wallet & Outcomes" onclick="document.getElementById('intelligence-section').scrollIntoView({behavior: 'smooth', block: 'start' }); return false;">
+            <i class="fa-solid fa-vault"></i>
+        </a>
+    </nav>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

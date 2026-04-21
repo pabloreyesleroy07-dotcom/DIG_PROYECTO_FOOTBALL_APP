@@ -1,0 +1,27 @@
+# Environments
+venv/
+env/
+.env
+
+# Precompiled Bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# Distribution / Packaging
+build/
+dist/
+build_seguro/
+build_scripts/
+*.spec
+
+# Archives & Logs
+archive/
+logs/
+*.log
+*.zip
+*.tar.gz
+
+# Data Persistence (Optional, but usually a good idea to ignore so DBs don't pollute repo)
+data/db/
+data/reports/
