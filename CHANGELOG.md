@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.0] - 2026-04-22
+### Added
+- **Wiki Centralized Hub**: Created comprehensive docs ecosystem (`Developer_Documentation.md`, `Devlog_LinkedIn.md`).
+- **Interactive API HTML**: Automated docstring generation yielding localized `.html` maps via PyDoc3.
+- **GitHub Release Package**: Public standalone deployment wrapping up Linux binaries with MIT Licensing logic formalized.
+
 ## [4.0.0] - 2026-04-21
 ### Added
 - **Military-Grade Security (`PyArmor`)**: Total bytecode obfuscation for backend routes and proprietary data extraction heuristics.

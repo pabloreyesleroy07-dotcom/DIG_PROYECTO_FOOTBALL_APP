@@ -4,8 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
 <meta name="generator" content="pdoc3 0.11.6">
-<title>config API documentation</title>
-<meta name="description" content="">
+<title>run API documentation</title>
+<meta name="description" content="Main application entry point.
+Initializes the Flask application via the application factory pattern and binds it to a
+dynamic port mapping suitable …">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
@@ -33,9 +35,12 @@ el.replaceWith(d);
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>config</code></h1>
+<h1 class="title">Module <code>run</code></h1>
 </header>
 <section id="section-intro">
+<p>Main application entry point.
+Initializes the Flask application via the application factory pattern and binds it to a
+dynamic port mapping suitable for both local deployment and continuous integration cloud services.</p>
 </section>
 <section>
 </section>
@@ -44,102 +49,6 @@ el.replaceWith(d);
 <section>
 </section>
 <section>
-<h2 class="section-title" id="header-classes">Classes</h2>
-<dl>
-<dt id="config.Config"><code class="flex name class">
-<span>class <span class="ident">Config</span></span>
-</code></dt>
-<dd>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class Config:
-    &#34;&#34;&#34;
-    Central Configuration Class for Football Stats Analyzer.
-    Maps all dynamic paths, ensures cross-compatibility between source code and generated PyInstaller EXEs, 
-    and handles crucial environment variables like API keys.
-    &#34;&#34;&#34;
-    API_KEY = _get_k()
-    BASE_URL = &#34;https://v3.football.api-sports.io&#34;
-    
-    # Path mappings absolute
-    import sys
-    if getattr(sys, &#39;frozen&#39;, False):
-        # Cuando es un EXE, la cámara de datos no puede estar en la memoria VOLÁTIL /tmp, 
-        # debe vivir físicamente al lado del propio archivo .bin
-        BASE_DIR = os.path.dirname(sys.executable)
-    else:
-        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        
-    DATA_DIR = os.path.join(BASE_DIR, &#34;data&#34;)
-    DB_DIR = os.path.join(DATA_DIR, &#34;db&#34;)
-    REPORTS_DIR = os.path.join(DATA_DIR, &#34;reports&#34;)
-    
-    # DB files
-    PREDICCIONES_FILE = os.path.join(DB_DIR, &#34;predicciones.json&#34;)
-    APUESTAS_FILE = os.path.join(DB_DIR, &#34;apuestas.json&#34;)
-    
-    # Limits for async scaling
-    MAX_CONCURRENT_REQUESTS = 10
-    ESPERA_API = 0.2 # Limit fallback limit in logic
-
-    # Crea directorios requeridos automáticamente si no existen
-    os.makedirs(DB_DIR, exist_ok=True)
-    os.makedirs(REPORTS_DIR, exist_ok=True)</code></pre>
-</details>
-<div class="desc"><p>Central Configuration Class for Football Stats Analyzer.
-Maps all dynamic paths, ensures cross-compatibility between source code and generated PyInstaller EXEs,
-and handles crucial environment variables like API keys.</p></div>
-<h3>Class variables</h3>
-<dl>
-<dt id="config.Config.API_KEY"><code class="name">var <span class="ident">API_KEY</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="config.Config.APUESTAS_FILE"><code class="name">var <span class="ident">APUESTAS_FILE</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="config.Config.BASE_DIR"><code class="name">var <span class="ident">BASE_DIR</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="config.Config.BASE_URL"><code class="name">var <span class="ident">BASE_URL</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="config.Config.DATA_DIR"><code class="name">var <span class="ident">DATA_DIR</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="config.Config.DB_DIR"><code class="name">var <span class="ident">DB_DIR</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="config.Config.ESPERA_API"><code class="name">var <span class="ident">ESPERA_API</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="config.Config.MAX_CONCURRENT_REQUESTS"><code class="name">var <span class="ident">MAX_CONCURRENT_REQUESTS</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="config.Config.PREDICCIONES_FILE"><code class="name">var <span class="ident">PREDICCIONES_FILE</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="config.Config.REPORTS_DIR"><code class="name">var <span class="ident">REPORTS_DIR</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="config.Config.sys"><code class="name">var <span class="ident">sys</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
-</dd>
-</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -147,26 +56,6 @@ and handles crucial environment variables like API keys.</p></div>
 <ul></ul>
 </div>
 <ul id="index">
-<li><h3><a href="#header-classes">Classes</a></h3>
-<ul>
-<li>
-<h4><code><a title="config.Config" href="#config.Config">Config</a></code></h4>
-<ul class="">
-<li><code><a title="config.Config.API_KEY" href="#config.Config.API_KEY">API_KEY</a></code></li>
-<li><code><a title="config.Config.APUESTAS_FILE" href="#config.Config.APUESTAS_FILE">APUESTAS_FILE</a></code></li>
-<li><code><a title="config.Config.BASE_DIR" href="#config.Config.BASE_DIR">BASE_DIR</a></code></li>
-<li><code><a title="config.Config.BASE_URL" href="#config.Config.BASE_URL">BASE_URL</a></code></li>
-<li><code><a title="config.Config.DATA_DIR" href="#config.Config.DATA_DIR">DATA_DIR</a></code></li>
-<li><code><a title="config.Config.DB_DIR" href="#config.Config.DB_DIR">DB_DIR</a></code></li>
-<li><code><a title="config.Config.ESPERA_API" href="#config.Config.ESPERA_API">ESPERA_API</a></code></li>
-<li><code><a title="config.Config.MAX_CONCURRENT_REQUESTS" href="#config.Config.MAX_CONCURRENT_REQUESTS">MAX_CONCURRENT_REQUESTS</a></code></li>
-<li><code><a title="config.Config.PREDICCIONES_FILE" href="#config.Config.PREDICCIONES_FILE">PREDICCIONES_FILE</a></code></li>
-<li><code><a title="config.Config.REPORTS_DIR" href="#config.Config.REPORTS_DIR">REPORTS_DIR</a></code></li>
-<li><code><a title="config.Config.sys" href="#config.Config.sys">sys</a></code></li>
-</ul>
-</li>
-</ul>
-</li>
 </ul>
 </nav>
 </main>

@@ -1,3 +1,8 @@
+"""
+Main application entry point.
+Initializes the Flask application via the application factory pattern and binds it to a 
+dynamic port mapping suitable for both local deployment and continuous integration cloud services.
+"""
 import os
 from api import create_app
 

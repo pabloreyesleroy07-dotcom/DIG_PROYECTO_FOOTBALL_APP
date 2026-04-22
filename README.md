@@ -1,54 +1,81 @@
 # ⚽ Football Stats Analyzer Pro
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
-![Version](https://img.shields.io/badge/version-4.0.0--stable-green.svg)
+## 🌟 Motivación del Proyecto
+El mundo de las inversiones y el análisis deportivo suele estar dominado por la intuición y el tiempo gastado manualmente evaluando datos, lo que a menudo lleva a decisiones sesgadas o a la pérdida de oportunidades ocultas de alto valor. 
 
-An asynchronous, military-grade statistical sports analyzer designed for precision arbitrage betting. It employs big-data parsing over global football REST APIs to predict match outcomes based solely on high-value anomalies rather than human prejudice.
+La motivación fundamental de **Football Stats Analyzer Pro** es **democratizar y automatizar el análisis avanzado de datos futbolísticos**. Hemos creado un motor de alto rendimiento que evalúa miles de parámetros estadísticos a escala global en cuestión de milisegundos. Esta herramienta busca "anomalías" y patrones matemáticos (value bets), transformando el tedioso análisis humano basado en hojas de cálculo en un sistema de un solo clic. Su arquitectura limpia, modular y asíncrona busca ofrecer resultados precisos en una interfaz totalmente accesible para cualquier perfil de usuario, garantizando el máximo rigor técnico en el backend.
 
-## 🌟 Motivation
-The modern sports investment landscape is clouded by heuristic gut feelings. The **Motivation** behind this Open Source engine is achieving *Digital Transformation* at the operational level (OT) by automating thousands of daily parameter evaluations across global leagues, compressing weeks of manual data engineering into a 5-second asynchronous pipeline.
+---
 
-## 🚀 Deployment Instructions
-This project is built using Python, Flask, and the async framework `aiohttp`. Wait for the binary to execute, or build your own.
+## 🚀 Despliegue de la Aplicación (Para Todos los Públicos)
 
-### 1. Local Development deployment
-1. Clone the repository.
-2. Initialize and activate your Python environment:
-   `python3 -m venv venv && source venv/bin/activate`
-3. Install strict dependencies:
-   `pip install -r requirements.txt` *(Requires Flask, aiohttp, requests, python-dotenv)*
-4. Run the core listener directly:
-   `python3 run.py`
-5. Navigate to `http://127.0.0.1:5000` via your standard browser.
+A continuación, indicamos los pasos paso a paso para poner en marcha la herramienta en tu propio ordenador. No hace falta experiencia previa si sigues las instrucciones.
 
-### 2. Standalone Binary Deployment (Linux)
-A pre-compiled, self-persisting, and fully byte-code obfuscated binary (`FootballStats_Secure`) is actively generated inside the `/dist` directory.
-Just drop the binary on a Linux server and execute it:
-```bash
-chmod +x ./dist/FootballStats_Secure
-./dist/FootballStats_Secure &
-```
+### 🪟 Opción A: Despliegue en Windows (Desde el código fuente)
+Para garantizar el mejor rendimiento en Windows, ejecutaremos la aplicación usando el código base en Python.
 
-### 3. Online Cloud Demo
-While currently optimized for local execution due to computational speed limits when bypassing API-rate blockages, the structure seamlessly integrates with cloud-hosting environments like **Heroku** or **Render**.
-Just connect this repository to Render and specify the start command:
-```bash
-gunicorn -w 4 -b 0.0.0.0:10000 api:app
-```
+1. **Instalar Python:** Descarga e instala [Python 3.11 o superior](https://www.python.org/downloads/).  
+   ⚠️ **¡IMPORTANTE!** Durante la instalación, fíjate en la primera pantalla y marca la casilla que dice **"Add Python to PATH"** *(Añadir Python al PATH de Windows)* antes de hacer clic en instalar.
+2. **Descargar el Proyecto:** Descarga este repositorio (botón "Download ZIP") o clónalo, y extrae la carpeta en un directorio fácil de encontrar (por ejemplo, en Documentos, resultando en `C:\Users\TuUsuario\Documents\Football_Stats`).
+3. **Abrir Símbolo del Sistema:** Pulsa la tecla de Windows, escribe `cmd` y presiona Enter.
+4. **Navegar a la Carpeta:** Escribe el siguiente comando reemplazando con la ruta correspondiente y presiona Enter:
+   ```cmd
+   cd C:\Users\TuUsuario\Documents\Football_Stats
+   ```
+5. **Crear un Entorno Virtual:** Para no mezclar complementos en tu PC, crearemos un entorno seguro (y esperamos unos segundos):
+   ```cmd
+   python -m venv venv
+   ```
+6. **Activar el Entorno:** Ahora indicamos a Windows que lo utilice:
+   ```cmd
+   venv\Scripts\activate
+   ```
+   *(Verás que la línea ahora comienza con `(venv)`, ¡significa que funcionó!)*
+7. **Instalar Dependencias:** Instalamos todas las librerías necesarias con un click:
+   ```cmd
+   pip install -r requirements.txt
+   ```
+8. **Inicia el Analizador:** Arranca la aplicación con este último comando:
+   ```cmd
+   python run.py
+   ```
+9. **¡Listo!** Abre tu navegador favorito (Chrome, Edge, Firefox) y escribe en la barra superior: **`http://127.0.0.1:5000`**
 
-## 🛠️ Usage Examples
-1. **Generating a Diagnostic**: Open the central Dashboard online, select your targeted date in the `date-picker`, and hit **Init Scenario Scanner**.
-2. **Reviewing Assertions（Collapsible Menus）**: Filter reports dynamically using the Top Bar. You'll witness output parameters such as: 
-   `[!!!] CORNERS: Value anomaly detected. (Confidence: 85%)`
-3. **Database AI Extraction Sync**: Use the Neural Net visualizer to automatically fetch historical score-lines across your saved scenarios to auto-tune the "Hit Rate" percentage tracker. 
+### 🐧 Opción B: Despliegue en Linux (Ubuntu, Debian, Mint...)
+Para Linux, hemos preparado una app pre-compilada dentro de este proyecto para facilitarte al máximo las cosas, aunque también puedes repetir el proceso de Windows cambiando el paso 6 por `source venv/bin/activate`. Para arrancar fácilmente:
 
-## 🗺️ Documentation 
-Developers can find in-depth Technical Sphinx docs mapped explicitly to HTML format inside `/docs/api_html/`. 
-Read our [Developer Devlog](docs/Devlog_LinkedIn.md) for our journey through code evolution.
+1. **Abrir Terminal:** Dirígete a la carpeta `Football_Stats` y abre una terminal pulsando clic derecho -> "Abrir terminal aquí".
+2. **Dar permisos al Ejecutable:** Necesitamos autorizar el archivado localizado en la carpeta interna `dist/`. Escribe:
+   ```bash
+   chmod +x dist/AnalizadorFutbol_Linux
+   ```
+   *(Nota: si en la carpeta `dist/` tienes un archivo llamado `FootballStats_Secure`, usa ese nombre en su lugar).*
+3. **Arrancar el Analizador:** Lanza la aplicación mediante:
+   ```bash
+   ./dist/AnalizadorFutbol_Linux
+   ```
+   *(Si decides correr el código fuente, simplemente utiliza `python3 run.py`).*
+4. **¡Listo!** Abre tu navegador web y dirígete a: **`http://127.0.0.1:5000`**
 
-## 🤝 Contribution Guidelines
-Read our complete internal mechanisms for collaborating (and tackling current unhandled future expansion milestones) at [CONTRIBUTING.md](CONTRIBUTING.md).
+---
 
-## 📄 License
-This venture operates under an open source [MIT License](LICENSE).
+## 🛠️ Ejemplos de Uso
+
+**Ejemplo 1: Escaneo y Predicción de Anomalías Diarias**
+1. Abre la aplicación en tu navegador web.
+2. En el **Dashboard** principal, utiliza el selector de fecha ("date-picker") y elige el día de hoy, y posteriormente pincha en el botón primario de inicio de escaneo.
+3. El motor (gracias a la tecnología asíncrona) evaluará ligas de todo el mundo al mismo tiempo en cuestión de segundos.
+4. Revisa los paneles informativos dinámicos, que te señalarán de forma filtrada escenarios como:
+   > `[!!!] ALERTA DE VALOR: El Equipo Local promedia 75% o más en Córners Over 9.5. Cuota del mercado fuera de lugar (Anomalía).`
+
+**Ejemplo 2: Exploración por Ligas Específicas**
+1. Si no deseas mirar partidos de ligas secundarias o desconocidas, utiliza los filtros superiores del Dashboard.
+2. Puedes marcar exclusivamente las "Big 5" (Premier League, La Liga, Serie A, etc.).
+3. El reporte general te devolverá no solo un listado de partidos, sino un factor de *Confidence* (Nivel de Confianza Numérico) basado en los últimos encuentros estrictamente en casa para el Local, y de visitante para la visita. 
+
+**Ejemplo 3: Extracción asíncrona de la API (Uso Profesional)**
+Si desarrollas modelos de Machine Learning y requieres consultar las matemáticas detrás sin abrir el navegador, puedes atacar directamente al puerto habilitado accediendo de forma local por GET al endpoint provisto: `http://127.0.0.1:5000/api/v1/stats/...`.
+
+---
+## 📄 Detalles Adicionales
+Consulta los detalles sobre los desarrolladores implicados en [CONTRIBUTING.md](CONTRIBUTING.md) (si existe), las licencias en [LICENSE](LICENSE) y el árbol de actualizaciones pasadas en [CHANGELOG.md](CHANGELOG.md).

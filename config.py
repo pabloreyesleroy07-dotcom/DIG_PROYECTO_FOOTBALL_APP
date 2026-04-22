@@ -5,6 +5,11 @@ def _get_k():
     return "".join(chr(c ^ 42) for c in _K_DATA)
 
 class Config:
+    """
+    Central Configuration Class for Football Stats Analyzer.
+    Maps all dynamic paths, ensures cross-compatibility between source code and generated PyInstaller EXEs, 
+    and handles crucial environment variables like API keys.
+    """
     API_KEY = _get_k()
     BASE_URL = "https://v3.football.api-sports.io"
     

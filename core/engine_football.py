@@ -22,16 +22,35 @@ class FootballAsyncEngine:
         self.session = None
 
     def _log(self, msg):
+        """
+        Prints a timestamped message to the console for tracking async process lifecycles.
+        
+        :param msg: String containing the descriptive log message.
+        """
         print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
 
     def _extract_val(self, stats_list, target_type):
+        """
+        Extracts a specific statistical value from the API-Sports response dictionary.
+        
+        :param stats_list: List of dictionary statistics provided by the API.
+        :param target_type: String representation of the stat to find (e.g., 'Corner Kicks').
+        :return: Integer value of the statistic, or 0 if not found/null.
+        """
         for s in stats_list:
             if s['type'] == target_type:
                 return s['value'] if s['value'] is not None else 0
         return 0
 
     async def _fetch(self, endpoint, params):
-        """ Wrapper HTTP asíncrono con control de límite de tasa. """
+        """
+        Asynchronous HTTP wrapper fetching data from the API-Sports REST API.
+        Handles rate limit semaphores to prevent connection bans.
+        
+        :param endpoint: Target API relative path string (e.g. '/fixtures').
+        :param params: Dictionary of query parameters.
+        :return: Decoded JSON response dictionary.
+        """
         async with self.semaphore:
             # Prevents hitting max throughput instantly
             await asyncio.sleep(Config.ESPERA_API) 
@@ -58,6 +77,13 @@ class FootballAsyncEngine:
         return 2025
 
     async def get_match_stats(self, fixture_id):
+        """
+        Fetches detailed endpoint statistics (Corners, Shots, Cards) for a specific match.
+        Caches results to avoid duplicate redundant API calls in nested methods.
+        
+        :param fixture_id: Numeric ID of the match fixture.
+        :return: List of structured dictionaries containing team stats, or None if unavailable.
+        """
         if fixture_id in self.results_cache: return self.results_cache[fixture_id]
         res = await self._fetch("/fixtures/statistics", {"fixture": fixture_id})
         response = res.get("response", [])
@@ -78,6 +104,14 @@ class FootballAsyncEngine:
         return results 
 
     async def get_league_benchmark(self, league_id, season):
+        """
+        Computes the baseline statistic averages (Benchmark) across the last 8 finished matches
+        in a given league to dynamically identify standard behavioral thresholds.
+        
+        :param league_id: Numeric ID of the league.
+        :param season: Target season year.
+        :return: Dictionary object matching the baseline means, or None if fail/insufficient data.
+        """
         key = f"{league_id}_{season}"
         if key in self.benchmarks: return self.benchmarks[key]
         
@@ -105,6 +139,13 @@ class FootballAsyncEngine:
         return None
 
     async def get_standings(self, league_id, season):
+        """
+        Retrieves current rank table positions for all teams in a specific league to assess logical prowess.
+        
+        :param league_id: Numeric ID of the targeted league.
+        :param season: Target season year.
+        :return: Dictionary mapping {team_id: rank_integer}.
+        """
         res = await self._fetch("/standings", {"league": league_id, "season": season})
         response = res.get("response", [])
         if not response: return {}
@@ -118,6 +159,15 @@ class FootballAsyncEngine:
         return standings_data
 
     def analizar_anomalias(self, l, v, b):
+        """
+        Executes strict logical/mathematical constraints to detect an outcome anomaly.
+        Compares Local (l) and Visitor (v) averages against the League Benchmark (b).
+        
+        :param l: Local home team statistics dictionary.
+        :param v: Visitor away team statistics dictionary.
+        :param b: League baseline averages dictionary.
+        :return: Tuple containing a boolean flag (if logic values detected) and a list of reasoning strings.
+        """
         razonamiento = []
         interes = False
         fiabilidad_total = 0
@@ -159,6 +209,14 @@ class FootballAsyncEngine:
         return interes, razonamiento
 
     async def process_fixture(self, fi, fecha_objetivo):
+        """
+        Concurrently manages the full analytical lifecycle for a single upcoming match fixture.
+        Dispatches threaded requests fetching H2H, Standings, and Last 5 averages.
+        
+        :param fi: The fixture dictionary payload object dict.
+        :param fecha_objetivo: Execution date string scope (YYYY-MM-DD).
+        :return: Tuple containing (Raw reporting string chunk, Database prediction save dictionary).
+        """
         l_id, l_name = fi['league']['id'], fi['league']['name']
         t1, t2 = fi['teams']['home'], fi['teams']['away']
         match_id = str(fi['fixture']['id'])
@@ -253,6 +311,13 @@ class FootballAsyncEngine:
         return ret_val, dict_prediccion
 
     async def ejecutar_async(self, dia="manana"):
+        """
+        Main orchestration loop for evaluating future bets over all tracked global leagues.
+        Maps dates to fixtures, splits tasks concurrently and handles the dynamic local DB saves.
+        
+        :param dia: Input date mapping (hoy, manana, YYYY-MM-DD).
+        :return: Success/failure message JSON dictionary payload.
+        """
         # Match Target Date
         if dia == "hoy": fecha_objetivo = datetime.now().strftime("%Y-%m-%d")
         elif dia == "manana": fecha_objetivo = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
@@ -324,6 +389,11 @@ class FootballAsyncEngine:
             return {"success": True, "message": "Completed Successfully"}
 
 def lanzar_scan(dia="manana"):
-    """ Wrapper helper sincrónico """
+    """
+    Synchronous wrapper to properly interface asynchronous loops generated by the Flask backend.
+    
+    :param dia: Date input format indicator mapped from JSON POST requests.
+    :return: Async loop evaluation.
+    """
     engine = FootballAsyncEngine()
     return asyncio.run(engine.ejecutar_async(dia=dia))
