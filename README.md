@@ -42,20 +42,20 @@ Para garantizar el mejor rendimiento en Windows, ejecutaremos la aplicación usa
 9. **¡Listo!** Abre tu navegador favorito (Chrome, Edge, Firefox) y escribe en la barra superior: **`http://127.0.0.1:5000`**
 
 ### 🐧 Opción B: Despliegue en Linux (Ubuntu, Debian, Mint...)
-Para Linux, hemos preparado una app pre-compilada dentro de este proyecto para facilitarte al máximo las cosas, aunque también puedes repetir el proceso de Windows cambiando el paso 6 por `source venv/bin/activate`. Para arrancar fácilmente:
+Para Linux, hemos preparado un binario pre-compilado dentro de este proyecto para facilitarte al máximo las cosas. Para arrancar fácilmente:
 
 1. **Abrir Terminal:** Dirígete a la carpeta `Football_Stats` y abre una terminal pulsando clic derecho -> "Abrir terminal aquí".
-2. **Dar permisos al Ejecutable:** Necesitamos autorizar el archivado localizado en la carpeta interna `dist/`. Escribe:
+2. **Dar permisos al Ejecutable:** Necesitamos autorizar el binario localizado en la carpeta interna `dist/`. Escribe:
    ```bash
    chmod +x dist/AnalizadorFutbol_Linux
    ```
-   *(Nota: si en la carpeta `dist/` tienes un archivo llamado `FootballStats_Secure`, usa ese nombre en su lugar).*
 3. **Arrancar el Analizador:** Lanza la aplicación mediante:
    ```bash
    ./dist/AnalizadorFutbol_Linux
    ```
-   *(Si decides correr el código fuente, simplemente utiliza `python3 run.py`).*
 4. **¡Listo!** Abre tu navegador web y dirígete a: **`http://127.0.0.1:5000`**
+
+> 💡 **Alternativa (código fuente):** Si prefieres ejecutar directamente desde el código fuente en lugar del binario, repite los pasos de Windows adaptando el paso 6 a `source venv/bin/activate` y arranca con `python3 run.py`.
 
 ---
 

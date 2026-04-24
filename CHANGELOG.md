@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.0] - 2026-04-24
+### Fixed
+- **Linux Binary Rebuild**: Recompiled `AnalizadorFutbol_Linux` from the modern `run.py` entry point (was incorrectly built from the deprecated monolithic `app.py`, causing the old interface to load on Linux).
+- **Build Spec Alignment**: Updated `AnalizadorFutbol_Linux.spec` to reference `run.py` and include all modular packages (`api/`, `core/`, `config.py`).
+
+### Changed
+- **Documentation Sync**: Updated all launcher scripts (`INICIAR_LINUX.sh`, `INICIAR_WINDOWS.bat`, `AnalizadorFutbol_Oculto.vbs`) and user-facing documentation (`README.md`, `Developer_Documentation.md`) to reflect the current modular architecture and correct startup commands.
+- **Archive Binary Updated**: Replaced the precompiled Linux binary in `archive/` with the newly built version using the modern interface.
+
 ## [4.1.0] - 2026-04-22
 ### Added
 - **Wiki Centralized Hub**: Created comprehensive docs ecosystem (`Developer_Documentation.md`, `Devlog_LinkedIn.md`).

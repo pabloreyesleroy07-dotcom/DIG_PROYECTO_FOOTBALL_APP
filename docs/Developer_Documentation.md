@@ -12,8 +12,12 @@ El proyecto se sustenta en un entorno **Cliente-Servidor (SPA)** con un *backend
 - Frontend (`/templates/index.html` y `/static/`): Proveen una interfaz gráfica interactiva, la cual realiza continuas llamadas AJAX utilizando `fetch()` hacia las bases de datos generadas por el motor.
 
 ## Control de Bases de Datos (`data/`)
-En lugar de depender de gigantescos servidores SQL, todo el tracking de inteligencia y valor se guarda en un archivo de almacenamiento plano en `data/predicciones.json`.
-El backend iterativamente abre este archivo y contrasta si los eventos (Ids de partido de apuestas anteriores) "Han ocurrido", recalculando con fórmulas matemáticas el *Hit Rate* o la tasa de éxito al vuelo, escribiéndolo después de forma segura.
+En lugar de depender de gigantescos servidores SQL, todo el tracking de inteligencia y valor se guarda en archivos de almacenamiento plano dentro de `data/db/`:
+- `data/db/predicciones.json`: Historial de predicciones y resultados verificados.
+- `data/db/apuestas.json`: Registro de apuestas gestionadas desde la interfaz.
+- `data/reports/`: Directorio donde se almacenan los reportes generados (formato `Reporte_YYYY-MM-DD.txt`).
+
+El backend iterativamente abre estos archivos y contrasta si los eventos (IDs de partido de apuestas anteriores) "Han ocurrido", recalculando con fórmulas matemáticas el *Hit Rate* o la tasa de éxito al vuelo, escribiéndolo después de forma segura.
 
 ## Extracción de Datos (API-Sports)
 El motor se comunica activamente mediante peticiones GET altamente agresivas (decenas de llamadas simultáneas) a la interfaz pública de API-Sports:

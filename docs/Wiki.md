@@ -1,6 +1,6 @@
 # 📖 Wiki Central del Proyecto
 
-Bienvenido al centro neurálgico de documentación de **Football Stats Analyzer Pro**. Desde este HUB podrás saltar a todos los manuales vitales generados durante las etapas de desarrollo y el crecimiento de la versión final.
+Bienvenido al centro neurálgico de documentación de **Football Stats Analyzer Pro v4.2**. Desde este HUB podrás saltar a todos los manuales vitales generados durante las etapas de desarrollo y el crecimiento de la versión final.
 
 ## 🧭 Índice de Contenidos
 
