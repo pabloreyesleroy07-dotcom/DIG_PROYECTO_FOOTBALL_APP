@@ -70,11 +70,11 @@ def run_generator():
     :return: A JSON object confirming triggering success or exception details.
     """
     data = request.json
-    dia = data.get("day")
+    day = data.get("day")
     if not day:
         return jsonify({"error": "Missing day / date parameter"}), 400
         
-    res = run_scan(day=dia)
+    res = run_scan(day=day)
     if res and res.get("error"):
         return jsonify({"success": False, "error": res["error"]})
         
