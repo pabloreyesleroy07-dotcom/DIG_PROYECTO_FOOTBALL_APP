@@ -31,8 +31,8 @@ class Config:
     APUESTAS_FILE = os.path.join(DB_DIR, "apuestas.json")
     
     # Limits for async scaling
-    MAX_CONCURRENT_REQUESTS = 10
-    ESPERA_API = 0.2 # Limit fallback limit in logic
+    MAX_CONCURRENT_REQUESTS = 5
+    ESPERA_API = 1.0 # Limit fallback limit in logic
 
     # Crea directorios requeridos automáticamente si no existen
     os.makedirs(DB_DIR, exist_ok=True)

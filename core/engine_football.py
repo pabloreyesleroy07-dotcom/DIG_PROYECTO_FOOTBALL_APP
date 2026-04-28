@@ -42,7 +42,7 @@ class FootballAsyncEngine:
                 return s['value'] if s['value'] is not None else 0
         return 0
 
-    async def _fetch(self, endpoint, params):
+    async def _fetch(self, endpoint, params, retries=3):
         """
         Asynchronous HTTP wrapper fetching data from the API-Sports REST API.
         Handles rate limit semaphores to prevent connection bans.
@@ -51,14 +51,26 @@ class FootballAsyncEngine:
         :param params: Dictionary of query parameters.
         :return: Decoded JSON response dictionary.
         """
-        async with self.semaphore:
-            # Prevents hitting max throughput instantly
-            await asyncio.sleep(Config.ESPERA_API) 
-            try:
-                async with self.session.get(f"{Config.BASE_URL}{endpoint}", params=params, headers=self.headers, timeout=12) as response:
-                    return await response.json()
-            except Exception as e:
-                return {}
+        for attempt in range(retries):
+            async with self.semaphore:
+                # Prevents hitting max throughput instantly
+                await asyncio.sleep(Config.ESPERA_API) 
+                try:
+                    async with self.session.get(f"{Config.BASE_URL}{endpoint}", params=params, headers=self.headers, timeout=12) as response:
+                        data = await response.json()
+                        if "errors" in data and data["errors"]:
+                            err = data["errors"]
+                            self._log(f"API Error at {endpoint}: {err}")
+                            # If we exceed the requests per minute limit, wait a full minute to reset it.
+                            if "rateLimit" in err or (isinstance(err, str) and "rate" in err.lower()):
+                                self._log("Rate limit hit! Pausing for 60 seconds to reset quota...")
+                                await asyncio.sleep(60)
+                                continue
+                        return data
+                except Exception as e:
+                    self._log(f"Fetch Exception at {endpoint}: {e}")
+                    await asyncio.sleep(2)
+        return {}
 
     async def get_current_season(self, league_id):
         """
@@ -175,9 +187,9 @@ class FootballAsyncEngine:
         
         for stat, label in [('tap', 'TAP'), ('t', 'TIROS'), ('cor', 'CORNERS')]:
             max_stat = max(l[stat], v[stat])
-            if max_stat > b[stat] * 2:
+            if b[stat] > 0 and max_stat > b[stat] * 1.5:
                 ratio = max_stat / b[stat]
-                fiab_local = min(99, int(((ratio - 2.0) / 1.0) * 30 + 70))
+                fiab_local = min(99, int(((ratio - 1.5) / 1.0) * 30 + 70))
                 razonamiento.append(f"      [!!!] {label}: Extreme value detected. (Reliability: {fiab_local}%)")
                 fiabilidad_total += fiab_local
                 anomalias_detectadas += 1
@@ -185,17 +197,17 @@ class FootballAsyncEngine:
 
         proy_cor = l['cor'] + v['cor']
         media_cor = b['cor'] * 2
-        if proy_cor > (media_cor * 1.25):
+        if media_cor > 0 and proy_cor > (media_cor * 1.15):
             ratio_cor = proy_cor / media_cor
-            fiab_cor = min(99, int(((ratio_cor - 1.25) / 0.75) * 30 + 70))
+            fiab_cor = min(99, int(((ratio_cor - 1.15) / 0.75) * 30 + 70))
             razonamiento.append(f"      [!] CORNERS: Interest in Over (Projection {proy_cor:.1f} vs Media {media_cor:.1f}). (Reliability: {fiab_cor}%)")
             fiabilidad_total += fiab_cor
             anomalias_detectadas += 1
             interes = True
 
-        if l['tap'] > b['tap'] * 1.3 and v['tap'] > b['tap'] * 1.3:
+        if b['tap'] > 0 and l['tap'] > b['tap'] * 1.15 and v['tap'] > b['tap'] * 1.15:
             ratio_tap = min(l['tap']/b['tap'], v['tap']/b['tap'])
-            fiab_tap = min(99, int(((ratio_tap - 1.3) / 0.7) * 30 + 70))
+            fiab_tap = min(99, int(((ratio_tap - 1.15) / 0.7) * 30 + 70))
             razonamiento.append(f"      [!] BOTH SCORE: Based on high Target Shots volume. (Reliability: {fiab_tap}%)")
             fiabilidad_total += fiab_tap
             anomalias_detectadas += 1
