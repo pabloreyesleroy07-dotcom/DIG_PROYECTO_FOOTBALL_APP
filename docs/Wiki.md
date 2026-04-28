@@ -1,12 +1,12 @@
-# 📖 Wiki Central del Proyecto
+# 📖 Central Project Wiki
 
-Bienvenido al centro neurálgico de documentación de **Football Stats Analyzer Pro v4.2**. Desde este HUB podrás saltar a todos los manuales vitales generados durante las etapas de desarrollo y el crecimiento de la versión final.
+Welcome to the central documentation hub for **Football Stats Analyzer Pro v4.2**. From this HUB, you can jump to all the vital manuals generated during the development stages and the growth of the final version.
 
-## 🧭 Índice de Contenidos
+## 🧭 Table of Contents
 
-| Categoría | Archivo Correspondiente | Descripción |
+| Category | Corresponding File | Description |
 | :--- | :--- | :--- |
-| **Punto de Arranque Público** | [README.md](../README.md) | La cara visible del repositorio. Explica de qué va todo el programa y los 8 pasos facilísimos que un usuario medio tiene que dar en Windows o de Linux para poner todo a funcionar localmente. |
-| **Colaboración (*New*)** | [CONTRIBUTING.md](../CONTRIBUTING.md) | Las reglas del juego. Cómo integrarte socialmente sin romper el estilo. Además, contiene nuestro **Roadmap a futuro** por si andas perdido sin ideas. |
-| **Arquitectura Interna** | [Developer_Documentation.md](Developer_Documentation.md) | El mapa cerebral y tecnológico del backend y frontend asíncrono para codificadores y experimentados. |
-| **Log de Desarrollo Social** | [Devlog_LinkedIn.md](Devlog_LinkedIn.md) | Documento social donde desglosamos literariamente nuestras penas (y victorias) por etapas al crear el proyecto. Textos hechos para impactar reclutadores. |
+| **Public Starting Point** | [README.md](../README.md) | The public face of the repository. It explains what the entire program is about and the 8 extremely easy steps an average user has to take on Windows or Linux to get everything running locally. |
+| **Collaboration (*New*)** | [CONTRIBUTING.md](../CONTRIBUTING.md) | The rules of the game. How to socially integrate without breaking the style. Additionally, it contains our **Future Roadmap** in case you are lost without ideas. |
+| **Internal Architecture** | [Developer_Documentation.md](Developer_Documentation.md) | The cerebral and technological map of the asynchronous backend and frontend for coders and experienced developers. |
+| **Social Development Log** | [Devlog_LinkedIn.md](Devlog_LinkedIn.md) | A social document where we literarily break down our struggles (and victories) by stages when creating the project. Texts made to impact recruiters. |
