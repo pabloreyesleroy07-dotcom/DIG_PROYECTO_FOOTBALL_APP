@@ -66,8 +66,8 @@ el.replaceWith(d);
     # Path mappings absolute
     import sys
     if getattr(sys, &#39;frozen&#39;, False):
-        # Cuando es un EXE, la cámara de datos no puede estar en la memoria VOLÁTIL /tmp, 
-        # debe vivir físicamente al lado del propio archivo .bin
+        # When running as an EXE, the data chamber cannot be in VOLATILE memory like /tmp, 
+        # it must physically live next to the .bin file itself
         BASE_DIR = os.path.dirname(sys.executable)
     else:
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -81,10 +81,10 @@ el.replaceWith(d);
     APUESTAS_FILE = os.path.join(DB_DIR, &#34;apuestas.json&#34;)
     
     # Limits for async scaling
-    MAX_CONCURRENT_REQUESTS = 10
-    ESPERA_API = 0.2 # Limit fallback limit in logic
+    MAX_CONCURRENT_REQUESTS = 5
+    ESPERA_API = 1.0 # Limit fallback limit in logic
 
-    # Crea directorios requeridos automáticamente si no existen
+    # Automatically create required directories if they don&#39;t exist
     os.makedirs(DB_DIR, exist_ok=True)
     os.makedirs(REPORTS_DIR, exist_ok=True)</code></pre>
 </details>

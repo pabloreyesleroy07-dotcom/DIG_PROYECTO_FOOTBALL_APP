@@ -15,7 +15,7 @@ class FootballAsyncEngine:
         self.headers = {'x-apisports-key': Config.API_KEY}
         self.benchmarks = {}
         self.seasons_cache = {}
-        self.results_cache = {} # Nivel 2 Caching para no volver a pedir fixtures/statistics
+        self.results_cache = {} # Level 2 Caching to avoid re-requesting fixtures/statistics
 
         # Semaphore limits active connections. Token-like delay ensures we don't exceed API rate limits.
         self.semaphore = asyncio.Semaphore(Config.MAX_CONCURRENT_REQUESTS) 
@@ -170,7 +170,7 @@ class FootballAsyncEngine:
         except: pass
         return standings_data
 
-    def analizar_anomalias(self, l, v, b):
+    def analyze_anomalies(self, l, v, b):
         """
         Executes strict logical/mathematical constraints to detect an outcome anomaly.
         Compares Local (l) and Visitor (v) averages against the League Benchmark (b).
@@ -180,53 +180,53 @@ class FootballAsyncEngine:
         :param b: League baseline averages dictionary.
         :return: Tuple containing a boolean flag (if logic values detected) and a list of reasoning strings.
         """
-        razonamiento = []
-        interes = False
-        fiabilidad_total = 0
-        anomalias_detectadas = 0
+        reasoning = []
+        interest = False
+        total_reliability = 0
+        detected_anomalies = 0
         
-        for stat, label in [('tap', 'TAP'), ('t', 'TIROS'), ('cor', 'CORNERS')]:
+        for stat, label in [('tap', 'TAP'), ('t', 'SHOTS'), ('cor', 'CORNERS')]:
             max_stat = max(l[stat], v[stat])
             if b[stat] > 0 and max_stat > b[stat] * 1.5:
                 ratio = max_stat / b[stat]
-                fiab_local = min(99, int(((ratio - 1.5) / 1.0) * 30 + 70))
-                razonamiento.append(f"      [!!!] {label}: Extreme value detected. (Reliability: {fiab_local}%)")
-                fiabilidad_total += fiab_local
-                anomalias_detectadas += 1
-                interes = True
+                local_rel = min(99, int(((ratio - 1.5) / 1.0) * 30 + 70))
+                reasoning.append(f"      [!!!] {label}: Extreme value detected. (Reliability: {local_rel}%)")
+                total_reliability += local_rel
+                detected_anomalies += 1
+                interest = True
 
-        proy_cor = l['cor'] + v['cor']
-        media_cor = b['cor'] * 2
-        if media_cor > 0 and proy_cor > (media_cor * 1.15):
-            ratio_cor = proy_cor / media_cor
-            fiab_cor = min(99, int(((ratio_cor - 1.15) / 0.75) * 30 + 70))
-            razonamiento.append(f"      [!] CORNERS: Interest in Over (Projection {proy_cor:.1f} vs Media {media_cor:.1f}). (Reliability: {fiab_cor}%)")
-            fiabilidad_total += fiab_cor
-            anomalias_detectadas += 1
-            interes = True
+        proj_cor = l['cor'] + v['cor']
+        avg_cor = b['cor'] * 2
+        if avg_cor > 0 and proj_cor > (avg_cor * 1.15):
+            ratio_cor = proj_cor / avg_cor
+            cor_rel = min(99, int(((ratio_cor - 1.15) / 0.75) * 30 + 70))
+            reasoning.append(f"      [!] CORNERS: Interest in Over (Projection {proj_cor:.1f} vs Media {avg_cor:.1f}). (Reliability: {cor_rel}%)")
+            total_reliability += cor_rel
+            detected_anomalies += 1
+            interest = True
 
         if b['tap'] > 0 and l['tap'] > b['tap'] * 1.15 and v['tap'] > b['tap'] * 1.15:
             ratio_tap = min(l['tap']/b['tap'], v['tap']/b['tap'])
-            fiab_tap = min(99, int(((ratio_tap - 1.15) / 0.7) * 30 + 70))
-            razonamiento.append(f"      [!] BOTH SCORE: Based on high Target Shots volume. (Reliability: {fiab_tap}%)")
-            fiabilidad_total += fiab_tap
-            anomalias_detectadas += 1
-            interes = True
+            tap_rel = min(99, int(((ratio_tap - 1.15) / 0.7) * 30 + 70))
+            reasoning.append(f"      [!] BOTH SCORE: Based on high Target Shots volume. (Reliability: {tap_rel}%)")
+            total_reliability += tap_rel
+            detected_anomalies += 1
+            interest = True
 
-        if interes and anomalias_detectadas > 0:
-            fiabilidad_promedio = int(fiabilidad_total / anomalias_detectadas)
-            semaforo = "🟢 HIGH" if fiabilidad_promedio >= 85 else ("🟡 MEDIUM" if fiabilidad_promedio >= 75 else "🔴 LOW")
-            razonamiento.insert(0, f"   🚦 GLOBAL CONFIDENCE: {semaforo} ({fiabilidad_promedio}%)")
+        if interest and detected_anomalies > 0:
+            average_reliability = int(total_reliability / detected_anomalies)
+            traffic_light = "🟢 HIGH" if average_reliability >= 85 else ("🟡 MEDIUM" if average_reliability >= 75 else "🔴 LOW")
+            reasoning.insert(0, f"   🚦 GLOBAL CONFIDENCE: {traffic_light} ({average_reliability}%)")
 
-        return interes, razonamiento
+        return interest, reasoning
 
-    async def process_fixture(self, fi, fecha_objetivo):
+    async def process_fixture(self, fi, target_date):
         """
         Concurrently manages the full analytical lifecycle for a single upcoming match fixture.
         Dispatches threaded requests fetching H2H, Standings, and Last 5 averages.
         
         :param fi: The fixture dictionary payload object dict.
-        :param fecha_objetivo: Execution date string scope (YYYY-MM-DD).
+        :param target_date: Execution date string scope (YYYY-MM-DD).
         :return: Tuple containing (Raw reporting string chunk, Database prediction save dictionary).
         """
         l_id, l_name = fi['league']['id'], fi['league']['name']
@@ -271,7 +271,7 @@ class FootballAsyncEngine:
                     output_buffer.append(f"         TAP:{sh['tap']}-{sa['tap']} | T:{sh['t']}-{sa['t']} | COR:{sh['cor']}-{sa['cor']} | YC:{sh['yc']}-{sa['yc']} | RC:{sh['rc']}-{sa['rc']}")
 
         # L5 Processing
-        equipo_data = []
+        team_data = []
         for team_info, p_rank, res_f in [(t1, p1, res_f1), (t2, p2, res_f2)]:
             output_buffer.append(f"\n   📈 LAST 5 {team_info['name'].upper()}:")
             matches = res_f.get("response", [])
@@ -288,30 +288,30 @@ class FootballAsyncEngine:
                     count += 1
             if count > 0:
                 prom = {'name': team_info['name'], 'tap': s_tap/count, 't': s_t/count, 'cor': s_cor/count, 'yc': s_yc/count, 'rc': s_rc/count}
-                equipo_data.append(prom)
+                team_data.append(prom)
                 if bench:
-                    output_buffer.append(f"      >> PROMEDIO: TAP:{prom['tap']:.1f} | T:{prom['t']:.1f} | COR:{prom['cor']:.1f} | YC:{prom['yc']:.1f} | RC:{prom['rc']:.2f}")
+                    output_buffer.append(f"      >> AVERAGE: TAP:{prom['tap']:.1f} | T:{prom['t']:.1f} | COR:{prom['cor']:.1f} | YC:{prom['yc']:.1f} | RC:{prom['rc']:.2f}")
 
         # Final Analytics
-        valor_detectado = False
-        dict_prediccion = None
+        value_detected = False
+        prediction_dict = None
 
-        if bench and len(equipo_data) == 2:
-            tiene_valor, razon = self.analizar_anomalias(equipo_data[0], equipo_data[1], bench)
-            if tiene_valor:
-                valor_detectado = True
+        if bench and len(team_data) == 2:
+            has_value, reason = self.analyze_anomalies(team_data[0], team_data[1], bench)
+            if has_value:
+                value_detected = True
                 output_buffer.append("\n   💡 LOGICAL ANALYSIS:")
-                output_buffer.extend(razon)
+                output_buffer.extend(reason)
                 output_buffer.append("=" * 115 + "\n")
                 
                 tags = []
-                for r in razon:
+                for r in reason:
                     if 'CORNERS' in r: tags.append('corners')
                     if 'BOTH SCORE' in r: tags.append('ambos_marcan')
                 
-                dict_prediccion = {
+                prediction_dict = {
                     "id": match_id,
-                    "date": fecha_objetivo,
+                    "date": target_date,
                     "home": t1['name'],
                     "away": t2['name'],
                     "tags": tags,
@@ -319,88 +319,88 @@ class FootballAsyncEngine:
                     "won": False
                 }
 
-        ret_val = "\n".join(output_buffer) if valor_detectado else None
-        return ret_val, dict_prediccion
+        ret_val = "\n".join(output_buffer) if value_detected else None
+        return ret_val, prediction_dict
 
-    async def ejecutar_async(self, dia="manana"):
+    async def execute_async(self, dia="tomorrow"):
         """
         Main orchestration loop for evaluating future bets over all tracked global leagues.
         Maps dates to fixtures, splits tasks concurrently and handles the dynamic local DB saves.
         
-        :param dia: Input date mapping (hoy, manana, YYYY-MM-DD).
+        :param dia: Input date mapping (today, tomorrow, YYYY-MM-DD).
         :return: Success/failure message JSON dictionary payload.
         """
         # Match Target Date
-        if dia == "hoy": fecha_objetivo = datetime.now().strftime("%Y-%m-%d")
-        elif dia == "manana": fecha_objetivo = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+        if dia == "today": target_date = datetime.now().strftime("%Y-%m-%d")
+        elif dia == "tomorrow": target_date = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
         else:
             try:
                 datetime.strptime(dia, "%Y-%m-%d")
-                fecha_objetivo = dia
+                target_date = dia
             except ValueError:
                 return {"error": "Invalid date format. Use YYYY-MM-DD."}
                 
-        dia_str = fecha_objetivo
-        ligas = [2, 3, 848, 140, 141, 39, 40, 135, 136, 78, 79, 61, 62, 94, 88, 144, 203, 71, 128, 253, 262, 98, 307, 113, 103, 265, 119, 292]
+        day_str = target_date
+        leagues = [2, 3, 848, 140, 141, 39, 40, 135, 136, 78, 79, 61, 62, 94, 88, 144, 203, 71, 128, 253, 262, 98, 307, 113, 103, 265, 119, 292]
         
-        self._log(f"🚀 Async Scanner V48 analyzing {dia_str}: {fecha_objetivo}...")
+        self._log(f"🚀 Async Scanner V48 analyzing {day_str}: {target_date}...")
         
         async with aiohttp.ClientSession() as session:
             self.session = session
             try:
-                res = await self._fetch("/fixtures", {"date": fecha_objetivo})
-                fixtures_obj = [fi for fi in res.get("response", []) if fi['league']['id'] in ligas]
+                res = await self._fetch("/fixtures", {"date": target_date})
+                fixtures_obj = [fi for fi in res.get("response", []) if fi['league']['id'] in leagues]
             except Exception as e:
                 self._log(f"❌ Initial connection error: {e}")
                 return {"error": "Initial connection error a la API."}
 
             if not fixtures_obj:
-                return {"message": f"No fixtures scheduled for {fecha_objetivo}."}
+                return {"message": f"No fixtures scheduled for {target_date}."}
 
             # Batch Processing Concurrently
-            tasks = [self.process_fixture(fi, fecha_objetivo) for fi in fixtures_obj]
+            tasks = [self.process_fixture(fi, target_date) for fi in fixtures_obj]
             results = await asyncio.gather(*tasks)
 
             # Reconstruct outputs
-            partidos_con_valor = []
-            nuevas_predicciones = []
-            con_anomalias = 0
+            valuable_matches = []
+            new_predictions = []
+            with_anomalies = 0
 
             for txt_res, pred_dist in results:
                 if txt_res and pred_dist:
-                    con_anomalias += 1
-                    partidos_con_valor.append(txt_res)
-                    nuevas_predicciones.append(pred_dist)
+                    with_anomalies += 1
+                    valuable_matches.append(txt_res)
+                    new_predictions.append(pred_dist)
 
             # Merge with persistent state in JSON
             try:
                 with open(Config.PREDICCIONES_FILE, 'r', encoding='utf-8') as f:
-                    todas_predicciones = json.load(f)
+                    all_predictions = json.load(f)
             except (FileNotFoundError, json.JSONDecodeError):
-                todas_predicciones = []
+                all_predictions = []
 
-            for nv in nuevas_predicciones:
-                if not any(p['id'] == nv['id'] for p in todas_predicciones):
-                    todas_predicciones.append(nv)
+            for nv in new_predictions:
+                if not any(p['id'] == nv['id'] for p in all_predictions):
+                    all_predictions.append(nv)
 
             try:
                 with open(Config.PREDICCIONES_FILE, 'w', encoding='utf-8') as f:
-                    json.dump(todas_predicciones, f, indent=4, ensure_ascii=False)
+                    json.dump(all_predictions, f, indent=4, ensure_ascii=False)
             except Exception as e:
-                self._log(f"⚠️ Error guardando JSON db: {e}")
+                self._log(f"⚠️ Error saving JSON db: {e}")
 
             # Write Report locally in reporting dir
-            nombre_archivo = os.path.join(Config.REPORTS_DIR, f"Reporte_{fecha_objetivo}.txt")
-            with open(nombre_archivo, "w", encoding="utf-8") as f:
-                f.write(f"Matches analyzed ({dia_str}): {len(fixtures_obj)}\n")
-                f.write(f"Matches with anomalies: {con_anomalias}\n")
-                f.write(f"Matches without anomalies: {len(fixtures_obj) - con_anomalias}\n\n")
-                f.write("".join(partidos_con_valor))
+            filename = os.path.join(Config.REPORTS_DIR, f"Report_{target_date}.txt")
+            with open(filename, "w", encoding="utf-8") as f:
+                f.write(f"Matches analyzed ({day_str}): {len(fixtures_obj)}\n")
+                f.write(f"Matches with anomalies: {with_anomalies}\n")
+                f.write(f"Matches without anomalies: {len(fixtures_obj) - with_anomalies}\n\n")
+                f.write("".join(valuable_matches))
             
-            self._log(f"✅ Finalizado (ASÍNCRONO). Reporte: {nombre_archivo}")
+            self._log(f"✅ Finished (ASYNCHRONOUS). Report: {filename}")
             return {"success": True, "message": "Completed Successfully"}
 
-def lanzar_scan(dia="manana"):
+def run_scan(dia="tomorrow"):
     """
     Synchronous wrapper to properly interface asynchronous loops generated by the Flask backend.
     
@@ -408,4 +408,4 @@ def lanzar_scan(dia="manana"):
     :return: Async loop evaluation.
     """
     engine = FootballAsyncEngine()
-    return asyncio.run(engine.ejecutar_async(dia=dia))
+    return asyncio.run(engine.execute_async(dia=dia))

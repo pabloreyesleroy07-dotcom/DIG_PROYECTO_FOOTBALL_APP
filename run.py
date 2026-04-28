@@ -10,6 +10,6 @@ app = create_app()
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
-    # Máxima optimización para workers no se puede lograr con debug=True.
-    # Desactivamos thread limits si usáramos Waitress / Gunicorn, pero usamos dev WSGI nativo aquí.
+    # Maximum worker optimization cannot be achieved with debug=True.
+    # We disable thread limits if we were using Waitress / Gunicorn, but we use native dev WSGI here.
     app.run(host="0.0.0.0", port=port, debug=False, threaded=True)

@@ -61,13 +61,13 @@ Provides RESTful endpoints for rendering dashboards, generating reports, and val
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def create_app():
-    # Soporte paramétros si compilas con Pyinstaller (.exe / binario)
+    # Parameter support if compiled with Pyinstaller (.exe / binary)
     if getattr(sys, &#39;frozen&#39;, False):
         template_folder = os.path.join(sys._MEIPASS, &#39;templates&#39;)
         static_folder = os.path.join(sys._MEIPASS, &#39;static&#39;)
         app = Flask(__name__, template_folder=template_folder, static_folder=static_folder)
     else:
-        # Default de la raíz (saltando api/)
+        # Root default (skipping api/)
         project_root = os.path.dirname(Config.BASE_DIR) 
         app = Flask(__name__, template_folder=os.path.join(Config.BASE_DIR, &#39;templates&#39;), static_folder=os.path.join(Config.BASE_DIR, &#39;static&#39;))
 

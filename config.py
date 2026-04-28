@@ -1,5 +1,5 @@
 import os
-# Clave cifrada XOR para ocultar contenido de análisis estático
+# XOR encrypted key to hide static analysis content
 _K_DATA = [31, 79, 29, 26, 75, 31, 18, 79, 19, 28, 76, 25, 75, 24, 30, 19, 29, 25, 72, 75, 29, 24, 25, 28, 18, 24, 24, 31, 19, 73, 31, 75]
 def _get_k():
     return "".join(chr(c ^ 42) for c in _K_DATA)
@@ -16,8 +16,8 @@ class Config:
     # Path mappings absolute
     import sys
     if getattr(sys, 'frozen', False):
-        # Cuando es un EXE, la cámara de datos no puede estar en la memoria VOLÁTIL /tmp, 
-        # debe vivir físicamente al lado del propio archivo .bin
+        # When running as an EXE, the data chamber cannot be in VOLATILE memory like /tmp, 
+        # it must physically live next to the .bin file itself
         BASE_DIR = os.path.dirname(sys.executable)
     else:
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -34,6 +34,6 @@ class Config:
     MAX_CONCURRENT_REQUESTS = 5
     ESPERA_API = 1.0 # Limit fallback limit in logic
 
-    # Crea directorios requeridos automáticamente si no existen
+    # Automatically create required directories if they don't exist
     os.makedirs(DB_DIR, exist_ok=True)
     os.makedirs(REPORTS_DIR, exist_ok=True)

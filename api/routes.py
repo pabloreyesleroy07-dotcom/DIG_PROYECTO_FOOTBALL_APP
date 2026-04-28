@@ -9,7 +9,7 @@ import requests
 from datetime import datetime
 from flask import Blueprint, render_template, jsonify, request
 from config import Config
-from core.engine_football import lanzar_scan
+from core.engine_football import run_scan
 
 api_bp = Blueprint('api', __name__)
 
@@ -32,12 +32,12 @@ def list_reports():
     reports = []
     if os.path.exists(Config.REPORTS_DIR):
         for filename in os.listdir(Config.REPORTS_DIR):
-            if filename.startswith("Reporte_") and filename.endswith(".txt"):
+            if filename.startswith("Report_") and filename.endswith(".txt"):
                 filepath = os.path.join(Config.REPORTS_DIR, filename)
                 mod_time = os.path.getmtime(filepath)
                 reports.append({
                     "filename": filename,
-                    "date_str": filename.replace("Reporte_", "").replace(".txt", ""),
+                    "date_str": filename.replace("Report_", "").replace(".txt", ""),
                     "timestamp": mod_time
                 })
         reports.sort(key=lambda x: x["timestamp"], reverse=True)
@@ -51,7 +51,7 @@ def get_report(filename):
     :param filename: The exact name of the file to retrieve.
     :return: A JSON object containing the stringified text content or an error payload.
     """
-    if not (filename.startswith("Reporte_") and filename.endswith(".txt")):
+    if not (filename.startswith("Report_") and filename.endswith(".txt")):
         return jsonify({"error": "Invalid file format"}), 400
         
     filepath = os.path.join(Config.REPORTS_DIR, filename)
@@ -70,11 +70,11 @@ def run_generator():
     :return: A JSON object confirming triggering success or exception details.
     """
     data = request.json
-    dia = data.get("dia")
-    if not dia:
+    dia = data.get("day")
+    if not day:
         return jsonify({"error": "Missing day / date parameter"}), 400
         
-    res = lanzar_scan(dia=dia)
+    res = run_scan(day=dia)
     if res and res.get("error"):
         return jsonify({"success": False, "error": res["error"]})
         
@@ -122,7 +122,7 @@ def get_dashboard_stats():
                             score_h = goals["home"]
                             score_a = goals["away"]
                             
-                            ambos_marcan = (score_h > 0 and score_a > 0)
+                            both_score = (score_h > 0 and score_a > 0)
                             stats_res = requests.get(f"{Config.BASE_URL}/fixtures/statistics", params={"fixture": p["id"]}, headers=headers).json()
                             
                             c_home = 0; c_away = 0
@@ -136,10 +136,10 @@ def get_dashboard_stats():
                             tags = p.get("tags", [])
                             won = False
                             
-                            if "ambos_marcan" in tags and ambos_marcan: won = True
+                            if "both_score" in tags and both_score: won = True
                             if "corners" in tags and total_corners > 8: won = True
-                            if "ambos_marcan" in tags and "corners" in tags:
-                                won = ambos_marcan and total_corners > 8
+                            if "both_score" in tags and "corners" in tags:
+                                won = both_score and total_corners > 8
                                 
                             p["checked"] = True
                             p["won"] = won
